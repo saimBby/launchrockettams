@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require('express');
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT
 const multer = require("multer")
 
 const cors = require("cors")
@@ -76,19 +76,18 @@ mongoose.connect(mongoUrl, {
 
       res.status(200).json({ firstname, lastname, username, email })
     } catch (error) {
-      console.log(error)
+      res.status(400).json({error: error.message})
     }
 })
 
 app.post("/loginUser", async (req, res) => {
     const { email, password } = req.body
-    
     try {
       const user = await mongo.login(email, password)
 
-      res.send({ status: "Redirecting to Paymentt..", data: user })
+      res.status(200).json(user)
     } catch (error) {
-      console.log(error)
-      res.send({ status: "Login failed, try it later" })
+      console.log(error.message)
+      res.status(400).json({error: error.message})
     }
 })

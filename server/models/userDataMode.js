@@ -45,7 +45,12 @@ userdataschema.statics.login = async function (email, password) {
       const user = await this.findOne({ email })
 
       if (!user) {
-        throw Error(email, "Not found")
+        throw Error("Email Not found")
+      }
+
+      const match = await bcrypt.compare(password, user.password)
+      if (!match) {
+        throw Error('Incorrect password')
       }
 
       return user
