@@ -65,7 +65,7 @@ mongoose.connect(mongoUrl, {
   });
 
   app.get("/hello", (req, res) => {
-    res.send("APP IS RUNNING")
+    res.send("APP")
   })
 
   app.post("/tamssignup", async (req, res) => {
