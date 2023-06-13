@@ -5,6 +5,7 @@ import { useAuthContext } from '../hooks/useAuthContext'
 
 import { BiError } from "react-icons/bi"
 
+import CircleLoader from "react-spinners/CircleLoader"
 import TAMSLOGO from "./img/TAMSLOGO.png"
 
 function NewSignup() {
@@ -19,6 +20,7 @@ function NewSignup() {
     const [setting, setSetting] = useState(false)
     const [error, setError] = useState("")
     const [errorresponse, setResponse] = useState({ ok: false, data: "", error: "" });
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -28,6 +30,7 @@ function NewSignup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setIsLoading(true);
         
         const response = await fetch("https://tamsrocketlaunch.onrender.com/tamssignup", {
             method: "POST",
@@ -37,11 +40,13 @@ function NewSignup() {
         const json = await response.json()  
         
         if (response.ok) {
+            setIsLoading(false)
             navigate("/Login")
         }
 
     
         if (!response.ok) {
+            setIsLoading(false)
             setResponse({ ok: false, data: "", error: json.error })
         }
     }
@@ -114,11 +119,20 @@ function NewSignup() {
                                     </div>
                                     <div className="flex justify-center mt-4">
                                         <button className="bg-pink-500 w-full p-2 rounded-xl font-bold text-white">
-                                            Create Account
+                                            Sign up
                                         </button>
                                     </div>
                                     <div className="flex justify-center mt-4">
-                                        <span className="font-extrabold text-red-500">{error}</span>
+                                        {
+                                            isLoading ?
+                                                <CircleLoader
+                                                    size={50}
+                                                    color={"#123abc"}
+                                                    loading={isLoading}
+                                            />
+                                            :
+                                            <div></div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -176,7 +190,7 @@ function NewSignup() {
                 {errorresponse.error && (
                 <div className="flex justify-end">
                   <div className="static">
-                    <div className="absolute bottom-20 right-2 bg-[#FF1493] p-2 rounded-2xl text-white font-bold">
+                    <div className="absolute bottom-10 right-2 bg-[#FF1493] p-2 rounded-2xl text-white font-bold">
                       <div className="flex justify-between">
                         <div className="flex justify-center">
                           <BiError className="text-2xl mt-1"></BiError>

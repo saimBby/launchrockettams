@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react"
 import { useAuthContext } from '../hooks/useAuthContext'
+import { Link, useNavigate } from "react-router-dom"
 
 import TAMSLOGO from "./img/TAMSLOGO.png"
+import CircleLoader from "react-spinners/CircleLoader"
 
 import { AiOutlineCheck } from "react-icons/ai"
+import { BiError } from "react-icons/bi"
 
 
 function PaymentCheckout() {
+    const navigate = useNavigate();
     const { user } = useAuthContext()
 
     const [email, setEmail] = useState("")
@@ -14,8 +18,29 @@ function PaymentCheckout() {
     const [lastName, setLastName] = useState("")
     const [username, setUsername] = useState("")
 
+    const [key, setKey] = useState("")
+    const [errorresponse, setResponse] = useState({ ok: false, data: "", error: "" });
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setIsLoading(true)
+        
+        const response = await fetch("https://tamsrocketlaunch.onrender.com/validateKey", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({key})
+        })
+        const json = await response.json()  
+        
+        if (response.ok) {
+            navigate("/AccountManager")
+        }
+
+        if (!response.ok) {
+            setIsLoading(false)
+            setResponse({ ok: false, data: "", error: json.error })
+        }
     }
 
     useEffect(() => {
@@ -59,9 +84,51 @@ function PaymentCheckout() {
             </div>
 
             <div className="flex justify-center mt-16">   
-                
+                <div className="flex flex-col">
+                    <div className="flex justify-center mb-2">
+                        <h1 className="text-3xl font-semibold text-[#3939FF] mb-2">
+                            Pre Launch Key
+                        </h1>
+                    </div>
+                    <div className="flex justify-center">
+                        <input type="text" onChange={(e) => setKey(e.target.value)}  placeholder="Pre Launch Key" className="p-4 rounded-xl">
+
+                        </input>
+                    </div>
+                    <div className="flex justify-center">
+                        <button className="bg-[#FF1493] p-2 w-full mt-4 rounded-xl font-bold text-[#F7F7F7]">Activate</button>
+                    </div>
+                    <div className="flex justify-center mt-4">
+                        {
+                            isLoading ?
+                                <CircleLoader
+                                    size={50}
+                                    color={"#123abc"}
+                                    loading={isLoading}
+                                />
+                            :
+                                <div></div>
+                            }
+                          </div>
+                </div>
             </div>
           </div>
+            {errorresponse.error && (
+                <div className="flex justify-end">
+                  <div className="static">
+                    <div className="absolute bottom-20 right-2 bg-[#FF1493] p-2 rounded-2xl text-white font-bold">
+                      <div className="flex justify-between">
+                        <div className="flex justify-center">
+                          <BiError className="text-2xl mt-1"></BiError>
+                        </div>
+                        <div className="flex justify-center">
+                          <span className="mr-2 ml-4 mt-0.5">{errorresponse.error}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            )}
         </div>
       </form>
     )

@@ -3,21 +3,15 @@ const express = require('express');
 
 const app = express();
 const port = process.env.PORT
-const multer = require("multer")
 
 const cors = require("cors")
-const fs = require('fs');
-const sharp = require('sharp');
 
-const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
 
 
-const loginRoutes = require("./routes/login")
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { Configuration, OpenAIApi } = require("openai");
 
@@ -30,6 +24,8 @@ const mongoUrl =
   "mongodb+srv://zdravko:Mosa%401879@atlascluster.tx2dar5.mongodb.net/Tams?retryWrites=true&w=majority"
 
 const mongo = mongoose.model("userdata")
+const launchkey = mongoose.model("launchKeys")
+const userAccessKey = mongoose.model("userAccessKey")
 
 app.use(express.json())
 app.use(cors())
@@ -38,11 +34,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({extended:true,parameterLimit:100000,limit:"500mb"}))
 app.use(bodyParser.json());
 app.use("/images", express.static(path.join(__dirname, "images")));
-
-const configuration = new Configuration({
-    apiKey: process.env.APIKEY,
-  });
-const openai = new OpenAIApi(configuration);
 
 mongoose.connect(mongoUrl, {
     useNewUrlParser: true,
@@ -89,5 +80,42 @@ app.post("/loginUser", async (req, res) => {
     } catch (error) {
       console.log(error.message)
       res.status(400).json({error: error.message})
+    }
+})
+
+app.post("/createPreLaunchKey", async (req, res) => {
+    const { key } = req.body
+
+    try {
+      const validateKey = await launchkey.createKey(key)
+
+      res.status(200).json(validateKey)
+    } catch (error) {
+      res.status(400).json({error: error.message})
+    }
+})
+
+app.post("/validateKey", async (req, res) => {
+    const { key } = req.body
+
+    try {
+      const validateKey = await launchkey.validateKey(key)
+
+      res.status(200).json(validateKey)
+    } catch (error) {
+      res.status(400).json({error: error.message})
+    }
+})
+
+app.post("/instagramLogin", async (req, res) => {
+    const { username, password, email } = req.body
+
+    try {
+        const accessData = await userAccessKey.instaLogin(username, password, email)
+
+        res.status(200).json({accessData})
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({error: error.message})
     }
 })

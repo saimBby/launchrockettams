@@ -3,6 +3,7 @@ import { useAuthContext } from '../hooks/useAuthContext'
 import { Link, useNavigate } from "react-router-dom"
 
 import TAMSLOGO from "./img/TAMSLOGO.png"
+import CircleLoader from "react-spinners/CircleLoader"
 
 import { BiError } from "react-icons/bi"
 
@@ -19,9 +20,11 @@ function Login () {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     const [errorresponse, setResponse] = useState({ ok: false, data: "", error: "" });
+    const [isLoading, setIsLoading] = useState(false);
    
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setIsLoading(true);
 
         const response = await fetch("https://tamsrocketlaunch.onrender.com/loginUser", {
             method: "POST",
@@ -36,9 +39,11 @@ function Login () {
           // update the auth context
           dispatch({type: 'LOGIN', payload: json})
           navigate("/Paymentcheckout")
+          setIsLoading(false)
         }
 
         if (!response.ok) {
+            setIsLoading(false)
             setResponse({ ok: false, data: "", error: json.error })
         }
     }
@@ -108,6 +113,18 @@ function Login () {
                               <button className="bg-pink-500 w-full p-2 rounded-xl font-bold text-white">
                                 Sign in
                             </button>
+                          </div>
+                          <div className="flex justify-center mt-4">
+                              {
+                                isLoading ?
+                                  <CircleLoader
+                                    size={50}
+                                    color={"#123abc"}
+                                    loading={isLoading}
+                                  />
+                                  :
+                                  <div></div>
+                                }
                           </div>
                       </div>
                   </div>
