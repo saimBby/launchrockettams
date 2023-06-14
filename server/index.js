@@ -97,6 +97,7 @@ app.post("/createPreLaunchKey", async (req, res) => {
 
 app.post("/validateKey", async (req, res) => {
     const { key } = req.body
+    console.log(key)
 
     try {
       const validateKey = await launchkey.validateKey(key)
