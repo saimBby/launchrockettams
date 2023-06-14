@@ -10,6 +10,11 @@ import Playground from './pages/Playground'
 import AccountManager from './pages/AccountManager'
 import Loadingscreen from './pages/Loadingscreen'
 
+import Home from './pages/Home'
+import Chat from './pages/Chat'
+
+import Beiträge from './pages/Beiträge'
+
 function App() {
   return (
     <div className="">
@@ -22,6 +27,11 @@ function App() {
 
         <Route path="/AccountManager" element={<AccountManager />} />
         <Route path="/loading" element={<Loadingscreen />} />
+
+        <Route path="/Home" element={<Home />} />
+        <Route path="/Chat" element={<Chat />} />
+
+        <Route path="/Posts" element={<Beiträge />} />
       </Routes> 
     </div>
   )

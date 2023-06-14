@@ -61,6 +61,12 @@ mongoose.connect(mongoUrl, {
 
   app.post("/tamssignup", async (req, res) => {
     const { firstname, lastname, username, email, password } = req.body 
+
+    const requestBodySizeInBytes = Buffer.byteLength(JSON.stringify(req.body));
+    const requestBodySizeInKB = requestBodySizeInBytes / 1024;
+    const requestBodySizeInMB = requestBodySizeInKB / 1024;
+
+    console.log(`Anfragegröße: ${requestBodySizeInKB} KB (${requestBodySizeInMB} MB)`);
     
     try {
       const user = await mongo.signup(firstname, lastname, username, email, password)
