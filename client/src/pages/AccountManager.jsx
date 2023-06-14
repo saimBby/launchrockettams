@@ -40,6 +40,8 @@ function AccountManager() {
             setPassword("")
             
             localStorage.setItem('userdata', JSON.stringify(json.accessData.username))
+
+            
         }
 
         if (!response.ok) {
