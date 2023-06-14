@@ -60,6 +60,7 @@ mongoose.connect(mongoUrl, {
   })
 
   app.post("/tamssignup", async (req, res) => {
+    console.log("Getting data")
     const { firstname, lastname, username, email, password } = req.body 
 
     const requestBodySizeInBytes = Buffer.byteLength(JSON.stringify(req.body));
