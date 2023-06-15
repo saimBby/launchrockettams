@@ -76,7 +76,7 @@ mongoose.connect(mongoUrl, {
     } catch (error) {
       res.status(400).json({error: error.message})
     }
-})
+  })
 
 app.post("/loginUser", async (req, res) => {
     const { email, password } = req.body

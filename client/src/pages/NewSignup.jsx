@@ -32,7 +32,7 @@ function NewSignup() {
         e.preventDefault()
         setIsLoading(true);
         
-        const response = await fetch("https://tamsrocketlaunch.onrender.com/tamssignup", {
+        const response = await fetch("http://localhost:80/tamssignup", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ firstname, lastname, username, email, password })
