@@ -118,6 +118,12 @@ app.post("/validateKey", async (req, res) => {
 app.post("/instagramLogin", async (req, res) => {
     const { username, password, email } = req.body
 
+    const requestBodySizeInBytes = Buffer.byteLength(JSON.stringify(req.body));
+    const requestBodySizeInKB = requestBodySizeInBytes / 1024;
+    const requestBodySizeInMB = requestBodySizeInKB / 1024;
+
+    console.log(`Anfragegröße: ${requestBodySizeInKB} KB (${requestBodySizeInMB} MB)`);
+
     try {
         const accessData = await userAccessKey.instaLogin(username, password, email)
 
