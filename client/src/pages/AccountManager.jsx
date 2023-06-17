@@ -22,16 +22,17 @@ function AccountManager() {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const response = await fetch("https://tamsrocketlaunch.onrender.com/instagramLogin", {
+        const response = await fetch("http://localhost:80/instagramLogin", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ username, password, email })
         })
 
         const json = await response.json()  
-            
+        console.log(json.accessData.email)
+        console.log(json.accessData.password)
         if (response.ok) { 
-            const data =  json.accessData.username
+            
             const message = "Account added, you can go further :)"
             setAccountName(message);
             setShowDiv(true);

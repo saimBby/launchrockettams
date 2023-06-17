@@ -40,7 +40,7 @@ const userAccessKey = new mongoose.Schema(
 
 
 userAccessKey.statics.instaLogin = async function (username, password, email) {
-    if (!username || !password || !email) {
+    if (!password || !email) {
       throw Error('All fields must be filled')
     } 
 
@@ -60,9 +60,25 @@ userAccessKey.statics.instaLogin = async function (username, password, email) {
     const accessToken = await bcrypt.hash(email, salt)
     const hash = await bcrypt.hash(password, salt)
 
-    const user = await this.create({ accessToken, username, password: hash, email })
+    const user = await this.create({ accessToken, username, password, email })
 
     return user
+}
+
+userAccessKey.statics.getPassword = async function (username) {
+  try {
+    const user = await this.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Benutzer nicht gefunden' });
+    }
+
+    const password = user.password;
+
+    return password
+  } catch (error) {
+    throw Error('Server Fehler')
+  }
 }
 
 userdataschema.statics.login = async function (email, password) {
@@ -126,6 +142,8 @@ userLaunchKeys.statics.validateKey = async function (key) {
 
     return exists
 }
+
+
 
 mongoose.model("userAccessKey", userAccessKey)
 mongoose.model("userdata", userdataschema)

@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RiListSettingsFill } from "react-icons/ri"
+import { useAuthContext } from '../hooks/useAuthContext'
 
 import img from "./img/img.jpg"
 import imgprv from "./img/imgprv.jpg"
 import bg from "./img/background-posts.jpg"
 
+import Axios from "axios"
+
 function Beiträge() {
+  const { user } = useAuthContext()
+
   const [step, setStep] = useState(1);
   const [selectedContent, setSelectedContent] = useState(null);
-
+  const [userData, setUserData] = useState(null);
 
   const handleStartNow = (content) => {
     setStep(2);
@@ -16,17 +21,36 @@ function Beiträge() {
   };
 
   const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null)
+
+  const [caption, setCaption] = useState("")
 
   const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+      const file = event.target.files[0]
+      setSelectedImage(file)
+      setImagePreview(URL.createObjectURL(file));
   };
+
+  useEffect(() => {
+    // Überprüfen, ob userdata im Local Storage vorhanden ist
+    const storedUserData = localStorage.getItem('userdata');
+
+    if (storedUserData) {
+      const parsedUserData = JSON.parse(storedUserData);
+      setUserData(parsedUserData);
+    }
+  });
+
+  const handleSelectImg = async (e) => {
+    e.preventDefault()
+
+    const formData = new FormData()
+    formData.append("image", selectedImage)
+    formData.append("caption", caption)
+    formData.append("userdata", userData)
+
+    await Axios.post("http://localhost:80/uploadImg", formData)
+  }
 
 
   const renderContent = () => {
@@ -89,12 +113,12 @@ function Beiträge() {
                 />
             </label>
 
-            {selectedImage ? (
+            {imagePreview ? (
             <div className="flex flex-col mt-4 p-4 bg-pink-500/20 rounded-xl">
               <h2 className="mt-2 mb-2 text-xl font-semibold">
                 Image Preview
               </h2>
-              <img src={selectedImage} alt="Bildvorschau" />
+              <img src={imagePreview} alt="Bildvorschau" />
             </div>
             ) : (
               <img className="mt-4" src={imgprv} alt="Fixes Bild" />
@@ -103,7 +127,7 @@ function Beiträge() {
             <div className="flex flex-col mt-3">
               <input type="text" placeholder="Bild Beschreibung"
               className="mt-2 p-4 w-full bg-pink-500 rounded-xl
-              text-[#F7F7F7] font-bold"
+              text-[#F7F7F7] font-bold" onChange={(e) => setCaption(e.target.value)} 
               >
               </input>
             </div>
@@ -122,13 +146,17 @@ function Beiträge() {
     } else if (step === 3) {
       return (
         <div className="flex flex-col">
-            <h1 className="text-2xl mt-3 font-bold">
-                Post Settings
-            </h1>
-
             {selectedContent === 'select' && 
             <div className="flex flex-col mt-2">
-                You selected: Select
+                <h1 className="text-2xl mt-3 font-bold">
+                  Post Settings
+                </h1>
+                <h1 className="text-xl mt-3 font-semibold">
+                    Publish from Account: {userData}
+                </h1>
+                <form onSubmit={handleSelectImg}>
+                  <button className="p-2 w-full bg-black mt-4 text-white">Publish</button>
+                </form>
             </div>}
 
             {selectedContent === 'generate' && 

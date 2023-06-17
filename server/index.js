@@ -8,6 +8,9 @@ const cors = require("cors")
 
 const bodyParser = require('body-parser');
 const path = require('path');
+const multer = require("multer")
+const fs = require('fs');
+const sharp = require('sharp');
 
 const mongoose = require("mongoose")
 
@@ -26,6 +29,8 @@ const mongoUrl =
 const mongo = mongoose.model("userdata")
 const launchkey = mongoose.model("launchKeys")
 const userAccessKey = mongoose.model("userAccessKey")
+
+const { IgApiClient } = require('instagram-private-api');
 
 app.use(express.json())
 app.use(cors())
@@ -132,4 +137,61 @@ app.post("/instagramLogin", async (req, res) => {
         console.log(error)
         res.status(400).json({error: error.message})
     }
+})
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads"); // Speicherort für hochgeladene Dateien
+  },
+  filename: (req, file, cb) => {
+      cb(null, file.originalname);
+  }
+});
+const upload = multer({ storage });
+
+app.post("/uploadImg", upload.single("image"), async (req, res) => {
+  const caption = req.body.caption
+  const imagePath = req.file.path
+  const scaledImagePath = `scaledUploads/${req.file.filename}`;
+
+  const user = req.body.userdata 
+
+  try {
+    const metadata = await sharp(imagePath).metadata();
+    if (!metadata || !metadata.width || !metadata.height) {
+      throw new Error('Fehler beim Auslesen der Bildinformationen');
+    }
+    const oldWidth = metadata.width;
+    const oldHeight = metadata.height;
+    console.log('Ursprüngliche Bildgröße:', oldWidth, oldHeight);
+
+    const { width, height } = await sharp(imagePath)
+      .resize({ width: 1696, height: 951 })
+      .toFile(scaledImagePath);
+    
+    if (!width || !height) {
+      throw new Error('Fehler beim Skalieren des Bildes');
+    }
+
+    console.log('Neue Bildgröße:', width, height);
+
+    const password = await userAccessKey.getPassword(user) 
+    
+    const ig = new IgApiClient();
+    await ig.state.generateDevice(user);
+    await ig.account.login(user, password);
+
+    const fileBuffer = fs.readFileSync(scaledImagePath);
+    const publishedPhoto = await ig.publish.photo({
+      file: fileBuffer,
+      caption: caption,
+    });
+
+    console.log('Bild erfolgreich hochgeladen:', publishedPhoto);
+    res.status(200).json({ message: 'Bild erfolgreich hochgeladen' });
+
+  } catch (error) {
+    console.error('Fehler beim Auslesen der Bildinformationen, beim Skalieren des Bildes oder beim Veröffentlichen des Bildes:', error);
+    res.status(500).json({ message: 'Fehler beim Auslesen der Bildinformationen, beim Skalieren des Bildes oder beim Veröffentlichen des Bildes' });
+  }
 })
