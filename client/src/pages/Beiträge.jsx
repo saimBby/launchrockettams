@@ -49,7 +49,7 @@ function Beiträge() {
     formData.append("caption", caption)
     formData.append("userdata", userData)
 
-    await Axios.post("http://localhost:80/uploadImg", formData)
+    await Axios.post("https://tamsrocketlaunch.onrender.com/uploadImg", formData)
   }
 
 
