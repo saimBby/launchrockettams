@@ -26,7 +26,7 @@ function PaymentCheckout() {
         e.preventDefault()
         setIsLoading(true)
         
-        const response = await fetch("http://localhost:80/validateKey", {
+        const response = await fetch("https://tamsrocketlaunch.onrender.com/validateKey", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({key})
