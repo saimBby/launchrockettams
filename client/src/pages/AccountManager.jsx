@@ -22,7 +22,7 @@ function AccountManager() {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const response = await fetch("https://tamsrocketlaunch.onrender.com/instagramLogin", {
+        const response = await fetch("https://tamsrocketlaunch-6th5.onrender.com/instagramLogin", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ username, password, email })
